@@ -16,7 +16,7 @@ require_once('../controlador/controlador.php');
             <thead>
                 <tr>
                     <th>Nombre del Estudiante</th>
-                    <th>Código del Estudiante</th>
+                    <!-- <th>Código del Estudiante</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -24,7 +24,6 @@ require_once('../controlador/controlador.php');
                     <?php foreach ($estudiantes_biologia as $estudiante): ?>
                         <tr>
                             <td><?php echo htmlspecialchars($estudiante['nombre']); ?></td>
-                            <td><?php echo htmlspecialchars($estudiante['codigo']); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>

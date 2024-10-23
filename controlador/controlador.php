@@ -19,18 +19,30 @@ function obtener_asignaturas() {
     return json_decode($response, true); // Decodificar la respuesta JSON
 }
 
-function obtener_estudiantes_biologia($estudiantes, $matriculas) {
+function obtener_estudiantes_biologia($estudiantes, $matriculas, $asignaturas) {
     $estudiantes_biologia = [];
     
-    foreach ($matriculas as $matricula) {
-        if ($matricula['asignatura'] == 'Biología') { // Filtrar por Biología
-            $id_estudiante = $matricula['id_estudiante'];
-            
-            // Buscar el estudiante en la lista de estudiantes
-            foreach ($estudiantes as $estudiante) {
-                if ($estudiante['id'] == $id_estudiante) {
-                    $estudiantes_biologia[] = $estudiante; // Agregar estudiante a la lista de Biología
-                    break;
+    // Encontrar la asignatura de Biología
+    $codigo_biologia = null;
+    foreach ($asignaturas as $asignatura) {
+        if ($asignatura['nombre'] == 'Biología') {
+            $codigo_biologia = $asignatura['codigoA'];
+            break;
+        }
+    }
+
+    // Filtrar estudiantes matriculados en Biología
+    if ($codigo_biologia !== null) {
+        foreach ($matriculas as $matricula) {
+            if ($matricula['codigoA'] == $codigo_biologia) { // Filtrar por Biología
+                $codigo_estudiante = $matricula['codigoE'];
+                
+                // Buscar el estudiante en la lista de estudiantes
+                foreach ($estudiantes as $estudiante) {
+                    if ($estudiante['codigoE'] == $codigo_estudiante) {
+                        $estudiantes_biologia[] = $estudiante; // Agregar estudiante a la lista de Biología
+                        break;
+                    }
                 }
             }
         }
@@ -43,22 +55,28 @@ function calcular_promedio_asignaturas($matriculas, $asignaturas) {
     $promedios = [];
 
     foreach ($asignaturas as $asignatura) {
-        $id_asignatura = $asignatura['id'];
-        $suma_notas = 0;
+        $codigo_asignatura = $asignatura['codigoA'];
+        $suma_promedios = 0;
         $total_estudiantes = 0;
 
-        // Recorrer las matrículas para sumar las notas de cada asignatura
+        // Recorrer las matrículas para sumar los promedios de cada asignatura
         foreach ($matriculas as $matricula) {
-            if ($matricula['id_asignatura'] == $id_asignatura) {
-                $suma_notas += $matricula['nota'];
+            if ($matricula['codigoA'] == $codigo_asignatura) {
+                // Calcular el promedio de las notas
+                $nota1 = floatval($matricula['nota1']);
+                $nota2 = floatval($matricula['nota2']);
+                $nota3 = floatval($matricula['nota3']);
+                $promedio = ($nota1 + $nota2 + $nota3) / 3;
+
+                $suma_promedios += $promedio;
                 $total_estudiantes++;
             }
         }
 
         if ($total_estudiantes > 0) {
-            // Calcular el promedio
-            $promedio = $suma_notas / $total_estudiantes;
-            $promedios[$asignatura['nombre']] = $promedio;
+            // Calcular el promedio general de la asignatura
+            $promedio_general = $suma_promedios / $total_estudiantes;
+            $promedios[$asignatura['nombre']] = $promedio_general;
         }
     }
 
@@ -71,15 +89,8 @@ $matriculas = obtener_matriculas();
 $asignaturas = obtener_asignaturas();
 
 // Obtener los estudiantes matriculados en Biología
-$estudiantes_biologia = obtener_estudiantes_biologia($estudiantes, $matriculas);
+$estudiantes_biologia = obtener_estudiantes_biologia($estudiantes, $matriculas, $asignaturas);
 
 // Calcular el promedio general de cada asignatura
 $promedios_asignaturas = calcular_promedio_asignaturas($matriculas, $asignaturas);
-
-// // Mostrar resultados
-// echo "Estudiantes matriculados en Biología: \n";
-// print_r($estudiantes_biologia);
-
-// echo "\nPromedios por asignatura: \n";
-// print_r($promedios_asignaturas);
 ?>
